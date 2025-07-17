@@ -1,20 +1,25 @@
-import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { IoCameraOutline } from "react-icons/io5";
+import { GoMirror } from "react-icons/go";
+import { useNavigate, useParams } from "react-router-dom";
+import Button from "../components/button";
+import FilterButton from "../components/filterButton";
+import PhotoPreview from "../components/photoPreview";
+import TimerOverlay from "../components/timeOverlay";
+import type { Template } from "../type/ITemplate";
+import { filterOptions } from "../type/filterOptions";
 
-interface Template {
-  id: number;
-  name: string;
-  slug: string;
-  img: string;
-}
+
+
+
 
 export function CameraPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const [template, setTemplate] = useState<Template | null>(null);
+  const [_, setTemplate] = useState<Template | null>(null);
+  const [timer, setTimer] = useState<number | null>(null);
+  const [isShooting, setIsShooting] = useState(false);
   const [photoURL, setPhotoUrl] = useState<string[]>([]);
-  const [isCameraReady, setIsCameraReady] = useState(false);
+  const [filter, setFilter] = useState("none");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -43,7 +48,6 @@ export function CameraPage() {
         videoRef.current.onloadedmetadata = async () => {
           await new Promise((r) => setTimeout(r, 100));
           videoRef.current?.play();
-          setIsCameraReady(true);
         };
       }
     });
@@ -57,6 +61,14 @@ export function CameraPage() {
 
   const resetPhoto = () => {
     setPhotoUrl([]);
+  };
+
+  const toggleMirror = () => {
+    const video = videoRef.current;
+    if (video) {
+      video.style.transform =
+        video.style.transform === "scale(-1, 1)" ? "" : "scale(-1, 1)";
+    }
   };
 
   const handleNext = () => {
@@ -78,33 +90,63 @@ export function CameraPage() {
       const height = video.videoHeight;
 
       if (!width || !height) {
-        alert("Kamera belum siap! Coba lagi.");
+        alert("Kamera belum siap! Izinkan akses kamera.");
         return;
       }
-
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
 
       canvas.width = width;
       canvas.height = height;
 
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        alert("Kamera belum siap! Izinkan akses kamera.");
+        return;
+      }
+
+      ctx.filter = filter;
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      ctx.drawImage(video, 0, 0, width, height);
 
       const imageData = canvas.toDataURL("image/png");
       setPhotoUrl((prev) => [imageData, ...prev.slice(0, 2)]);
     }
   };
 
+  const startPhotoSequence = async () => {
+    setIsShooting(true);
+    setPhotoUrl([]);
+
+    for (let i = 0; i < 3; i++) {
+      await new Promise<void>((resolve) => {
+        let count = 3;
+        setTimer(count);
+
+        const interval = setInterval(() => {
+          count -= 1;
+          if (count <= 0) {
+            clearInterval(interval);
+            setTimer(null);
+            handleCapture();
+            resolve();
+          } else {
+            setTimer(count);
+          }
+        }, 1000);
+      });
+
+      await new Promise((res) => setTimeout(res, 500));
+    }
+
+    setIsShooting(false);
+  };
+
   return (
     <div>
       <div className="flex flex-col items-center">
         <p className="text-4xl sm:text-5xl font-extrabold text-[#D72323] tracking-tight leading-tight">
-          Ambil Foto dengan Template
-        </p>
-        <p className="text-sm text-[#4B4B4B] mt-4 font-medium max-w-md text-center">
-          Template: <span className="font-semibold">{template?.name}</span>
+          Capture Your Photo with a Template
         </p>
       </div>
 
@@ -115,75 +157,66 @@ export function CameraPage() {
               <video
                 ref={videoRef}
                 autoPlay
+                style={{ filter }}
                 playsInline
                 className="w-full h-full rounded-lg shadow scale-x-[-1] object-cover"
               />
+              {timer !== null && <TimerOverlay time={timer} />}
             </div>
           </div>
 
-          <button
-            onClick={handleCapture}
-            style={{ fontFamily: "Roboto" }}
-            disabled={!isCameraReady}
-            className={`z-10 relative w-full flex items-center justify-center gap-2
-              px-6 py-2 rounded-md font-semibold text-md transition
-              ${
-                isCameraReady
-                  ? "bg-black text-white hover:bg-gray-800"
-                  : "bg-gray-400 text-white cursor-not-allowed"
+          <div className="flex gap-3 flex-wrap justify-center w-full">
+            {filterOptions.map((opt) => (
+              <FilterButton
+                key={opt.value}
+                icon={opt.name}
+                active={filter === opt.value}
+                disabled={isShooting}
+                onClick={() => setFilter(opt.value)}
+              />
+            ))}
+            <button
+              disabled={isShooting}
+              onClick={toggleMirror}
+              className={`w-12 cursor-pointer border-[#D72323] text-[#D72323] h-12 flex items-center 
+              justify-center rounded-full border-2 transition font-semibold text-xs ${
+                isShooting
+                  ? "bg-gray-300 text-white border-gray-300 cursor-not-allowed"
+                  : "bg-white hover:bg-[#D72323]/10"
               }`}
-          >
-            <IoCameraOutline size={20} />
-            Take Photo
-          </button>
+            >
+              <GoMirror size={20} />
+            </button>
+          </div>
+
+          <Button
+            title={
+              isShooting
+                ? "Sedang Mengambil Foto"
+                : photoURL.length >= 3
+                ? "Semua foto sudah terambil!"
+                : "Ambil Foto"
+            }
+            onClick={startPhotoSequence}
+            disabled={isShooting || photoURL.length >= 3}
+            className={`z-10 relative w-full flex items-center justify-center gap-2
+                      px-6 py-2 rounded-md font-semibold text-md transition ${
+                        isShooting || photoURL.length >= 3
+                          ? "bg-gray-400"
+                          : "bg-[#D72323]"
+                      }
+                      `}
+          />
         </div>
 
         <canvas ref={canvasRef} className="hidden" />
 
-        <div className="flex flex-col items-start py-4 px-4 bg-[#f8fafc] shadow border border-[#edf5fd] rounded-md w-full md:w-[400px] gap-4">
-          <div className="flex items-start gap-2">
-            <h1 className="text-2xl text-black font-bold">Foto</h1>
-          </div>
-
-          {photoURL.length > 0 ? (
-            <div className="flex flex-wrap justify-center gap-3 w-full bg-[#edf5fd] border border-[#ebebeb] px-4 py-4 rounded-md">
-              {photoURL.map((url, i) => (
-                <div key={i} className="rounded shadow overflow-hidden">
-                  <img
-                    src={url}
-                    alt={`Foto ${i + 1}`}
-                    className="w-[100px] h-auto object-contain rounded"
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex items-center justify-center w-full bg-[#edf5fd] border border-[#ebebeb] px-4 py-12 rounded-md">
-              <p
-                className="text-[#757b88] text-md"
-                style={{ fontFamily: "Roboto" }}
-              >
-                Foto Tidak Tersedia
-              </p>
-            </div>
-          )}
-
-          <div className="flex flex-col gap-2 w-full mt-2">
-            <button
-              onClick={resetPhoto}
-              style={{ fontFamily: "Roboto" }}
-              className="bg-[#f2f1f1] text-black font-medium border border-[#ebebeb] px-4 py-2 rounded w-full"
-            >
-              Reset Photo
-            </button>
-            <button
-              onClick={handleNext}
-              className="bg-[#0074C1] text-white px-4 py-2 rounded w-full"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+        <PhotoPreview
+          photos={photoURL}
+          onReset={resetPhoto}
+          onNext={handleNext}
+          canNext={photoURL.length >= 3}
+        />
       </div>
     </div>
   );

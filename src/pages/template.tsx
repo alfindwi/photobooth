@@ -1,6 +1,6 @@
-import { IoCameraOutline } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Button from "../components/button";
 
 interface Template {
   id: number;
@@ -21,12 +21,12 @@ export function Template() {
     <div>
       <div className="flex flex-col items-center">
         <p className="text-4xl sm:text-5xl font-extrabold text-[#D72323] tracking-tight leading-tight">
-          Pilih Template Foto Favoritmu
+          Choose Your Favorite Photo Template
         </p>
-        <p className="text-sm text-[#4B4B4B] mt-4 font-medium">
-          Rayakan momen spesial kemerdekaan dengan photobooth bertema merah
-          putih. Pilih template yang kamu suka, ambil foto langsung dari kamera,
-          dan unduh hasilnya!
+        <p className="text-sm text-[#4B4B4B] mt-4 font-medium text-center max-w-3xl">
+          Celebrate this special Independence Day moment with our red-and-white
+          themed photo booth. Select a template you love, take a photo directly
+          from your camera, and download the result instantly!
         </p>
       </div>
 
@@ -53,14 +53,12 @@ export function Template() {
               >
                 {templates.name}
               </h3>
-              <button
-                style={{ fontFamily: "Roboto" }}
+              <Button
+                title="Start"
                 className="mt-4 w-full flex items-center bg-[#FF6F91] text-white cursor-pointer justify-center gap-2 px-4 py-2 text-md 
                  border border-[#c4c4c4] group-hover:bg-black group-hover:border-none 
                      group-hover:text-white font-semibold rounded-lg transition"
-              >
-                <IoCameraOutline size={20} /> Start
-              </button>
+              />
             </div>
           </Link>
         ))}
