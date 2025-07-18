@@ -70,7 +70,6 @@ export default function PreviewPage() {
 
       try {
         const img = await loadImage(photoSrc);
-
         const x = pos.left.endsWith("%")
           ? (canvas.width * parseInt(pos.left)) / 100 - parseInt(pos.width) / 2
           : parseInt(pos.left);
@@ -79,7 +78,6 @@ export default function PreviewPage() {
         const targetWidth = parseInt(pos.width);
         const targetHeight = parseInt(pos.height);
 
-        // Aspect ratio crop - like object-fit: cover
         const imgRatio = img.width / img.height;
         const targetRatio = targetWidth / targetHeight;
 
@@ -89,11 +87,9 @@ export default function PreviewPage() {
           sh = img.height;
 
         if (imgRatio > targetRatio) {
-          // Image is wider than target area
           sw = img.height * targetRatio;
           sx = (img.width - sw) / 2;
         } else {
-          // Image is taller than target area
           sh = img.width / targetRatio;
           sy = (img.height - sh) / 2;
         }
@@ -104,27 +100,25 @@ export default function PreviewPage() {
       }
     }
 
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    let newWindow: Window | null = null;
+
+    if (isIOS) {
+      newWindow = window.open(); // Buka popup sebelum async
+    }
+
     try {
       const overlay = await loadImage(template.img);
       ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
 
       const dataUrl = canvas.toDataURL("image/png");
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-      if (isIOS) {
-        const newWindow = window.open();
-        if (newWindow) {
-          newWindow.document.write(`<img src="${dataUrl}" style="width:100%">`);
-        } else {
-          alert(
-            "Silakan aktifkan pop-up di browser Anda untuk menyimpan gambar."
-          );
-        }
+      if (isIOS && newWindow) {
+        newWindow.document.write(`<img src="${dataUrl}" style="width:100%">`);
       } else {
         const link = document.createElement("a");
         link.href = dataUrl;
         link.download = `KARNATESA_${Math.floor(Math.random() * 1000)}.png`;
-
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
