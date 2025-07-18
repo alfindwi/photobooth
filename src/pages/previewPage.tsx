@@ -48,12 +48,15 @@ export default function PreviewPage() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // Ukuran canvas default
     canvas.width = 320;
     canvas.height = 800;
 
+    // Latar hitam
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Fungsi untuk load image
     const loadImage = (src: string) =>
       new Promise<HTMLImageElement>((resolve, reject) => {
         const img = new Image();
@@ -63,6 +66,7 @@ export default function PreviewPage() {
         img.onerror = reject;
       });
 
+    // Gambar user
     for (let idx = 0; idx < template.position.length; idx++) {
       const pos = template.position[idx];
       const photoSrc = photos[idx];
@@ -70,6 +74,7 @@ export default function PreviewPage() {
 
       try {
         const img = await loadImage(photoSrc);
+
         const x = pos.left.endsWith("%")
           ? (canvas.width * parseInt(pos.left)) / 100 - parseInt(pos.width) / 2
           : parseInt(pos.left);
@@ -100,11 +105,13 @@ export default function PreviewPage() {
       }
     }
 
+    // Deteksi platform
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     let newWindow: Window | null = null;
 
     if (isIOS) {
-      newWindow = window.open(); // Buka popup sebelum async
+      newWindow = window.open("", "_blank");
     }
 
     try {
@@ -113,8 +120,24 @@ export default function PreviewPage() {
 
       const dataUrl = canvas.toDataURL("image/png");
 
+      if (!dataUrl) {
+        alert("Gagal membuat gambar dari canvas");
+        return;
+      }
+
       if (isIOS && newWindow) {
-        newWindow.document.write(`<img src="${dataUrl}" style="width:100%">`);
+        newWindow.document.write(`
+        <html><head><title>Download</title></head>
+        <body style="margin:0">
+          <img src="${dataUrl}" style="width:100%;height:auto"/>
+          <p style="text-align:center;font-size:14px">Tekan dan tahan gambar untuk menyimpan</p>
+        </body></html>
+      `);
+        newWindow.document.close();
+
+        alert(
+          "Gambar berhasil dibuat. Tekan dan tahan gambar untuk menyimpan."
+        );
       } else {
         const link = document.createElement("a");
         link.href = dataUrl;
@@ -122,9 +145,14 @@ export default function PreviewPage() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
+        if (isMobile) {
+          alert("Gambar berhasil diunduh. Cek galeri atau folder download.");
+        }
       }
     } catch (err) {
       console.error("Gagal memuat overlay template", err);
+      alert("Terjadi kesalahan saat membuat gambar.");
     }
   };
 
