@@ -18,10 +18,10 @@ export function Template() {
       .then((data) => setTemplate(data));
   }, []);
   return (
-    <div>
-      <div className="flex flex-col items-center">
-        <p className="text-4xl sm:text-5xl font-extrabold text-[#D72323] tracking-tight leading-tight">
-          Choose Your Favorite Photo Template
+    <div className="px-10 py-10">
+      <div className="flex flex-col items-center text-center ">
+        <p className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#9a0002] tracking-tight leading-tight">
+          Choose Your Favorit Photo Template
         </p>
         <p className="text-sm text-[#4B4B4B] mt-4 font-medium text-center max-w-3xl">
           Celebrate this special Independence Day moment with our red-and-white
@@ -48,16 +48,16 @@ export function Template() {
 
             <div className="p-4">
               <h3
-                className="text-[#272343] font-semibold md:text-md xl:text-xl"
+                className="text-[#9a0002] font-semibold md:text-md xl:text-xl"
                 style={{ fontFamily: "Roboto" }}
               >
                 {templates.name}
               </h3>
               <Button
                 title="Start"
-                className="mt-4 w-full flex items-center bg-[#FF6F91] text-white cursor-pointer justify-center gap-2 px-4 py-2 text-md 
-                 border border-[#c4c4c4] group-hover:bg-black group-hover:border-none 
-                     group-hover:text-white font-semibold rounded-lg transition"
+                className="mt-4 w-full flex items-center bg-[#9a0002] text-[#efe6fe] cursor-pointer justify-center gap-2 px-4 py-2 text-md 
+                 border border-[#c4c4c4] group-hover:bg-[#9a0003] group-hover:border-none 
+                     group-hover:text-[#efe6fe] font-semibold rounded-lg transition"
               />
             </div>
           </Link>

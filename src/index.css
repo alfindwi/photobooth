@@ -28,8 +28,7 @@ body::-webkit-scrollbar {
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    background-color: #fcf0d6;
   }
   a:hover {
     color: #747bff;

@@ -8,10 +8,6 @@ import TimerOverlay from "../components/timeOverlay";
 import type { Template } from "../type/ITemplate";
 import { filterOptions } from "../type/filterOptions";
 
-
-
-
-
 export function CameraPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -115,6 +111,7 @@ export function CameraPage() {
   };
 
   const startPhotoSequence = async () => {
+    if (isShooting || photoURL.length >= 3) return;
     setIsShooting(true);
     setPhotoUrl([]);
 
@@ -142,10 +139,11 @@ export function CameraPage() {
     setIsShooting(false);
   };
 
+
   return (
-    <div>
-      <div className="flex flex-col items-center">
-        <p className="text-4xl sm:text-5xl font-extrabold text-[#D72323] tracking-tight leading-tight">
+    <div className="px-4 sm:px-6 lg:px-8 py-4 flex flex-col items-center">
+      <div className="flex flex-col items-center text-center">
+        <p className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-[#9a0002] tracking-tight leading-tight">
           Capture Your Photo with a Template
         </p>
       </div>
@@ -153,7 +151,7 @@ export function CameraPage() {
       <div className="flex flex-col md:flex-row gap-8 mt-10 w-full items-start">
         <div className="flex flex-col w-full md:w-[600px] items-start gap-6 relative">
           <div className="relative w-full">
-            <div className="relative w-[600px] h-[380px]">
+            <div className="relative w-full max-w-[600px] h-[250px] sm:h-[300px] md:h-[380px] mx-auto">
               <video
                 ref={videoRef}
                 autoPlay
@@ -173,16 +171,17 @@ export function CameraPage() {
                 active={filter === opt.value}
                 disabled={isShooting}
                 onClick={() => setFilter(opt.value)}
+                bgColor={opt.backgroundColor}
               />
             ))}
             <button
               disabled={isShooting}
               onClick={toggleMirror}
-              className={`w-12 cursor-pointer border-[#D72323] text-[#D72323] h-12 flex items-center 
+              className={`w-12 cursor-pointer border-gray-300 text-[#9a0002] h-12 flex items-center 
               justify-center rounded-full border-2 transition font-semibold text-xs ${
                 isShooting
                   ? "bg-gray-300 text-white border-gray-300 cursor-not-allowed"
-                  : "bg-white hover:bg-[#D72323]/10"
+                  : "bg-white hover:bg-[#9a0002]/10"
               }`}
             >
               <GoMirror size={20} />
@@ -199,11 +198,11 @@ export function CameraPage() {
             }
             onClick={startPhotoSequence}
             disabled={isShooting || photoURL.length >= 3}
-            className={`z-10 relative w-full flex items-center justify-center gap-2
+            className={`z-10 cursor-pointer relative w-full flex items-center justify-center gap-2
                       px-6 py-2 rounded-md font-semibold text-md transition ${
                         isShooting || photoURL.length >= 3
                           ? "bg-gray-400"
-                          : "bg-[#D72323]"
+                          : "bg-[#9a0002]"
                       }
                       `}
           />

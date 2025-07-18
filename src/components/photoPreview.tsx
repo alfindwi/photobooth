@@ -8,7 +8,7 @@ interface PhotoPreviewProps {
 export default function PhotoPreview({ photos, onReset, onNext, canNext }: PhotoPreviewProps) {
   return (
     <div className="flex flex-col items-start py-4 px-4 bg-[#f8fafc] shadow border border-[#edf5fd] rounded-md w-full md:w-[400px] gap-4">
-      <h1 className="text-2xl text-black font-bold">Preview</h1>
+      <h1 className="text-2xl text-[#9a0002] font-bold">Preview</h1>
 
       {photos.length > 0 ? (
         <div className="flex flex-wrap justify-center gap-3 w-full bg-[#edf5fd] border border-[#ebebeb] px-4 py-4 rounded-md">
@@ -25,7 +25,10 @@ export default function PhotoPreview({ photos, onReset, onNext, canNext }: Photo
       <div className="flex flex-col gap-2 w-full">
         <button
           onClick={onReset}
-          className="bg-[#f2f1f1] text-[#D72323] font-medium border border-[#ebebeb] px-4 py-2 rounded w-full"
+          disabled={photos.length === 0}
+          className={`bg-[#f2f1f1] text-[#9a0002] font-medium border border-[#ebebeb] px-4 py-2 rounded w-full ${
+            photos.length === 0 ? "bg-gray-400 cursor-not-allowed text-white" : "cursor-pointer"
+          }`}
         >
           Reset Photo
         </button>
@@ -33,7 +36,7 @@ export default function PhotoPreview({ photos, onReset, onNext, canNext }: Photo
           onClick={onNext}
           disabled={!canNext}
           className={`text-white px-4 py-2 rounded w-full ${
-            canNext ? "bg-[#D72323] cursor-pointer" : "bg-gray-400 cursor-not-allowed"
+            canNext ? "bg-[#9a0002] cursor-pointer" : "bg-gray-400 cursor-not-allowed"
           }`}
         >
           Next
