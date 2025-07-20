@@ -82,7 +82,6 @@ export function CameraPage() {
     const canvas = canvasRef.current;
 
     if (video && canvas) {
-
       const videoWidth = video.videoWidth;
       const videoHeight = video.videoHeight;
 
@@ -92,37 +91,19 @@ export function CameraPage() {
       }
 
       const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        alert("Kamera belum siap! Izinkan akses kamera.");
-        return;
-      }
+      if (!ctx) return;
 
-      // Ambil ukuran container video (dari bounding box)
-      const displayWidth = video.clientWidth;
-      const displayHeight = video.clientHeight;
-
-      // Ukuran canvas mengikuti tampilan video
-      canvas.width = displayWidth;
-      canvas.height = displayHeight;
+      // Gunakan resolusi asli video agar tidak gepeng
+      canvas.width = videoWidth;
+      canvas.height = videoHeight;
 
       ctx.filter = filter;
 
       // Mirroring
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
+      ctx.setTransform(-1, 0, 0, 1, canvas.width, 0);
 
-      // Gambar sesuai proporsi visual
-      ctx.drawImage(
-        video,
-        0,
-        0,
-        video.videoWidth,
-        video.videoHeight,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
+      // Gambar proporsional tanpa distorsi
+      ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
 
       const imageData = canvas.toDataURL("image/png");
       setPhotoUrl((prev) => [imageData, ...prev.slice(0, 2)]);
