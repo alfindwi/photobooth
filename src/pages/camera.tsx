@@ -15,10 +15,26 @@ export function CameraPage() {
   const [timer, setTimer] = useState<number | null>(null);
   const [isShooting, setIsShooting] = useState(false);
   const [photoURL, setPhotoUrl] = useState<string[]>([]);
+  const [isPotrait, setIsPotrait] = useState(false);
   const [filter, setFilter] = useState("none");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const checkOrientation = () => {
+      setIsPotrait(window.innerHeight > window.innerWidth);
+    };
+
+    checkOrientation();
+    window.addEventListener("resize", checkOrientation);
+    window.addEventListener("orientationchange", checkOrientation);
+
+    return () => {
+      window.removeEventListener("resize", checkOrientation);
+      window.removeEventListener("orientationchange", checkOrientation);
+    };
+  }, []);
 
   useEffect(() => {
     fetch("https://api.npoint.io/b6d7f97e0c41ebb97c7b")
@@ -141,6 +157,19 @@ export function CameraPage() {
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-4 flex flex-col items-center">
+      {isPotrait && (
+        <div className="fixed top-0 left-0 w-screen px-4 h-screen flex items-center justify-center bg-black/70 bg-opacity-50 z-50">
+          <div className="bg-[#f8fafc] shadow border border-[#edf5fd] p-4 rounded-md max-w-sm text-center">
+            <h1 className="text-2xl text-[#9a0002] font-bold mb-2">
+              Eh.. Layarnya HP-nya di putar dulu yaa!
+            </h1>
+            <p className="text-sm text-[#9a0002] font-medium">
+              Soalnya kalau nggak diputar, hasil fotonya bisa gepeng,
+              Biar foto kamu tetap kece dan terlihat cakep. Yuk diputar layarnya 📸✨
+            </p>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col items-center text-center">
         <p className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-[#9a0002] tracking-tight leading-tight">
           Capture Your Photo with a Templates
