@@ -82,6 +82,7 @@ export function CameraPage() {
     const canvas = canvasRef.current;
 
     if (video && canvas) {
+
       const videoWidth = video.videoWidth;
       const videoHeight = video.videoHeight;
 
@@ -96,32 +97,31 @@ export function CameraPage() {
         return;
       }
 
-      // Ukuran crop: Portrait
-      const targetWidth = 720;
-      const targetHeight = 960;
+      // Ambil ukuran container video (dari bounding box)
+      const displayWidth = video.clientWidth;
+      const displayHeight = video.clientHeight;
 
-      // Hitung posisi crop di tengah video
-      const sx = (videoWidth - targetWidth) / 2;
-      const sy = (videoHeight - targetHeight) / 2;
-
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
+      // Ukuran canvas mengikuti tampilan video
+      canvas.width = displayWidth;
+      canvas.height = displayHeight;
 
       ctx.filter = filter;
-      ctx.translate(targetWidth, 0); // mirror horizontal
-      ctx.scale(-1, 1); // mirror horizontal
 
-      // Crop area tengah
+      // Mirroring
+      ctx.translate(canvas.width, 0);
+      ctx.scale(-1, 1);
+
+      // Gambar sesuai proporsi visual
       ctx.drawImage(
         video,
-        sx,
-        sy,
-        targetWidth,
-        targetHeight,
         0,
         0,
-        targetWidth,
-        targetHeight
+        video.videoWidth,
+        video.videoHeight,
+        0,
+        0,
+        canvas.width,
+        canvas.height
       );
 
       const imageData = canvas.toDataURL("image/png");
