@@ -82,16 +82,13 @@ export function CameraPage() {
     const canvas = canvasRef.current;
 
     if (video && canvas) {
-      const width = video.videoWidth;
-      const height = video.videoHeight;
+      const videoWidth = video.videoWidth;
+      const videoHeight = video.videoHeight;
 
-      if (!width || !height) {
+      if (!videoWidth || !videoHeight) {
         alert("Kamera belum siap! Izinkan akses kamera.");
         return;
       }
-
-      canvas.width = width;
-      canvas.height = height;
 
       const ctx = canvas.getContext("2d");
       if (!ctx) {
@@ -99,11 +96,33 @@ export function CameraPage() {
         return;
       }
 
-      ctx.filter = filter;
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
+      // Ukuran crop: Portrait
+      const targetWidth = 720;
+      const targetHeight = 960;
 
-      ctx.drawImage(video, 0, 0, width, height);
+      // Hitung posisi crop di tengah video
+      const sx = (videoWidth - targetWidth) / 2;
+      const sy = (videoHeight - targetHeight) / 2;
+
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+
+      ctx.filter = filter;
+      ctx.translate(targetWidth, 0); // mirror horizontal
+      ctx.scale(-1, 1); // mirror horizontal
+
+      // Crop area tengah
+      ctx.drawImage(
+        video,
+        sx,
+        sy,
+        targetWidth,
+        targetHeight,
+        0,
+        0,
+        targetWidth,
+        targetHeight
+      );
 
       const imageData = canvas.toDataURL("image/png");
       setPhotoUrl((prev) => [imageData, ...prev.slice(0, 2)]);
@@ -139,12 +158,11 @@ export function CameraPage() {
     setIsShooting(false);
   };
 
-
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-4 flex flex-col items-center">
       <div className="flex flex-col items-center text-center">
         <p className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-[#9a0002] tracking-tight leading-tight">
-          Capture Your Photo with a Template
+          Capture Your Photo with a Templates
         </p>
       </div>
 
