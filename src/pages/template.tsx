@@ -13,7 +13,7 @@ export function Template() {
   const [template, setTemplate] = useState([] as Template[]);
 
   useEffect(() => {
-    fetch("https://api.npoint.io/b6d7f97e0c41ebb97c7b")
+    fetch("https://api.npoint.io/acfa037961d19a2c8985")
       .then((res) => res.json())
       .then((data) => setTemplate(data));
   }, []);

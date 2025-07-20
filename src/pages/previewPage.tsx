@@ -22,7 +22,7 @@ export default function PreviewPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    fetch("https://api.npoint.io/b6d7f97e0c41ebb97c7b")
+    fetch("https://api.npoint.io/acfa037961d19a2c8985")
       .then((res) => res.json())
       .then((data: Template[]) => {
         const selected = data.find((item) => item.slug === slug);
