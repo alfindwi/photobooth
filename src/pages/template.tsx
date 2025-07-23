@@ -21,12 +21,12 @@ export function Template() {
     <div className="px-10 py-10">
       <div className="flex flex-col items-center text-center ">
         <p className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#9a0002] tracking-tight leading-tight">
-          Choose Your Favorit Photo Template
+          Pilih Template favorit anda
         </p>
         <p className="text-sm text-[#4B4B4B] mt-4 font-medium text-center max-w-3xl">
-          Celebrate this special Independence Day moment with our red-and-white
-          themed photo booth. Select a template you love, take a photo directly
-          from your camera, and download the result instantly!
+          Rayakan momen spesial Hari Kemerdekaan ini dengan template foto bertema
+          merah-putih kami. Pilih template favorit Anda, ambil foto langsung
+          dari kamera Anda, dan unduh hasilnya langsung!
         </p>
       </div>
 

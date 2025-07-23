@@ -141,7 +141,7 @@ export default function PreviewPage() {
       } else {
         const link = document.createElement("a");
         link.href = dataUrl;
-        link.download = `KARNATESA_${Math.floor(Math.random() * 1000)}.png`;
+        link.download = `KARNATESA_${Math.floor(Math.random() * 1000000)}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

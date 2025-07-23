@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { GoMirror } from "react-icons/go";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Button from "../components/button";
 import FilterButton from "../components/filterButton";
+import ImageCropper from "../components/Cropper";
 import PhotoPreview from "../components/photoPreview";
 import TimerOverlay from "../components/timeOverlay";
 import type { Template } from "../type/ITemplate";
 import { filterOptions } from "../type/filterOptions";
+import { IoMdArrowRoundBack } from "react-icons/io";
 
 export function CameraPage() {
   const { slug } = useParams();
@@ -17,6 +19,9 @@ export function CameraPage() {
   const [photoURL, setPhotoUrl] = useState<string[]>([]);
   const [isPotrait, setIsPotrait] = useState(false);
   const [filter, setFilter] = useState("none");
+  const [flash, setFlash] = useState(false);
+  const [isCropping, setIsCropping] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -37,7 +42,7 @@ export function CameraPage() {
   }, []);
 
   useEffect(() => {
-    fetch("https://api.npoint.io/b6d7f97e0c41ebb97c7b")
+    fetch("https://api.npoint.io/acfa037961d19a2c8985")
       .then((res) => res.json())
       .then((data: Template[]) => {
         const selected = data.find((item) => item.slug === slug);
@@ -94,44 +99,77 @@ export function CameraPage() {
   };
 
   const handleCapture = () => {
+    setFlash(true);
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
     if (video && canvas) {
-      const videoWidth = video.videoWidth;
-      const videoHeight = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
 
-      if (!videoWidth || !videoHeight) {
+      const originalWidth = video.videoWidth;
+      const originalHeight = video.videoHeight;
+
+      if (!originalWidth || !originalHeight) {
         alert("Kamera belum siap! Izinkan akses kamera.");
         return;
       }
 
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
+      const targetAspect = 120 / 77;
+      const videoAspect = originalWidth / originalHeight;
 
-      // Gunakan resolusi asli video agar tidak gepeng
-      canvas.width = videoWidth;
-      canvas.height = videoHeight;
+      let sx = 0,
+        sy = 0,
+        sWidth = originalWidth,
+        sHeight = originalHeight;
+
+      if (videoAspect > targetAspect) {
+        sWidth = originalHeight * targetAspect;
+        sx = (originalWidth - sWidth) / 2;
+      } else {
+        sHeight = originalWidth / targetAspect;
+        sy = (originalHeight - sHeight) / 2;
+      }
+
+      canvas.width = sWidth;
+      canvas.height = sHeight;
 
       ctx.filter = filter;
-
-      // Mirroring
-      ctx.setTransform(-1, 0, 0, 1, canvas.width, 0);
-
-      // Gambar proporsional tanpa distorsi
-      ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+      ctx.setTransform(-1, 0, 0, 1, sWidth, 0);
+      ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
 
       const imageData = canvas.toDataURL("image/png");
       setPhotoUrl((prev) => [imageData, ...prev.slice(0, 2)]);
+
+      setTimeout(() => setFlash(false), 200);
     }
   };
 
-  const startPhotoSequence = async () => {
-    if (isShooting || photoURL.length >= 3) return;
-    setIsShooting(true);
-    setPhotoUrl([]);
+  const handleStartCrop = (index: number) => {
+    const photo = photoURL[index];
+    setSelectedImage(photo);
+    setIsCropping(true);
+  };
 
-    for (let i = 0; i < 3; i++) {
+  const handleCropComplete = (photoURL: string) => {
+    setPhotoUrl((prev) =>
+      prev.map((url) => (url === selectedImage ? photoURL : url))
+    );
+    setIsCropping(false);
+    setSelectedImage(null);
+  };
+
+  const handleDelete = (index: number) => {
+    setPhotoUrl((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const startPhotoSequence = async () => {
+    if (isShooting || photoURL.length >= 3 || isPotrait) return;
+    setIsShooting(true);
+
+    const remaining = 3 - photoURL.length;
+
+    for (let i = 0; i < remaining; i++) {
       await new Promise<void>((resolve) => {
         let count = 3;
         setTimer(count);
@@ -155,39 +193,57 @@ export function CameraPage() {
     setIsShooting(false);
   };
 
+  const handleClose = () => {
+    setIsCropping(false);
+    setSelectedImage(null);
+  };
+
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-4 flex flex-col items-center">
-      {isPotrait && (
-        <div className="fixed top-0 left-0 w-screen px-4 h-screen flex items-center justify-center bg-black/70 bg-opacity-50 z-50">
-          <div className="bg-[#f8fafc] shadow border border-[#edf5fd] p-4 rounded-md max-w-sm text-center">
-            <h1 className="text-2xl text-[#9a0002] font-bold mb-2">
-              Eh.. Layarnya HP-nya di putar dulu yaa!
-            </h1>
-            <p className="text-sm text-[#9a0002] font-medium">
-              Soalnya kalau nggak diputar, hasil fotonya bisa gepeng,
-              Biar foto kamu tetap kece dan terlihat cakep. Yuk diputar layarnya 📸✨
-            </p>
-          </div>
-        </div>
-      )}
-      <div className="flex flex-col items-center text-center">
+      <div className="relative w-full text-center mb-6 flex flex-col md:block">
+        <Link
+          to="/"
+          className="mb-4 md:mb-0 md:absolute md:left-0 md:top-1/2 md:-translate-y-1/2"
+        >
+          <IoMdArrowRoundBack
+            className="text-[#9a0002] ml-4 md:ml-0 text-2xl cursor-pointer md:text-5xl sm:text-6xl"
+          />
+        </Link>
+
         <p className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-[#9a0002] tracking-tight leading-tight">
-          Capture Your Photo with a Templates
+          Ambil Foto dengan Template Pilihanmu
         </p>
       </div>
 
       <div className="flex flex-col md:flex-row gap-8 mt-10 w-full items-start">
         <div className="flex flex-col w-full md:w-[600px] items-start gap-6 relative">
           <div className="relative w-full">
-            <div className="relative w-full max-w-[600px] h-[250px] sm:h-[300px] md:h-[380px] mx-auto">
-              <video
-                ref={videoRef}
-                autoPlay
-                style={{ filter }}
-                playsInline
-                className="w-full h-full rounded-lg shadow scale-x-[-1] object-cover"
-              />
+            <div className="relative w-full max-w-[600px] aspect-[120/77] mx-auto">
+              {isPotrait ? (
+                <div className="bg-black/10 shadow border border-[#edf5fd] p-4 rounded-md max-w-sm text-center">
+                  <h1 className="text-2xl text-[#9a0002] font-bold mb-2">
+                    Eh.. Layarnya HP-nya di putar dulu yaa!
+                  </h1>
+                  <p className="text-sm text-[#9a0002] font-medium">
+                    Soalnya kalau nggak diputar, hasil fotonya bisa gepeng, Biar
+                    foto kamu tetap kece dan terlihat bagus. diputar layarnya
+                    yaa :D
+                  </p>
+                </div>
+              ) : (
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  style={{ filter }}
+                  playsInline
+                  className="w-full h-full rounded-lg shadow scale-x-[-1] object-cover"
+                />
+              )}
+
               {timer !== null && <TimerOverlay time={timer} />}
+              {flash && (
+                <div className="absolute top-0 left-0 w-full h-full bg-black/40 animate-fadeOut rounded-lg z-10" />
+              )}
             </div>
           </div>
 
@@ -225,10 +281,10 @@ export function CameraPage() {
                 : "Ambil Foto"
             }
             onClick={startPhotoSequence}
-            disabled={isShooting || photoURL.length >= 3}
+            disabled={isShooting || isPotrait || photoURL.length >= 3}
             className={`z-10 cursor-pointer relative w-full flex items-center justify-center gap-2
                       px-6 py-2 rounded-md font-semibold text-md transition ${
-                        isShooting || photoURL.length >= 3
+                        isShooting || photoURL.length >= 3 || isPotrait
                           ? "bg-gray-400"
                           : "bg-[#9a0002]"
                       }
@@ -243,8 +299,18 @@ export function CameraPage() {
           onReset={resetPhoto}
           onNext={handleNext}
           canNext={photoURL.length >= 3}
+          handleDelete={handleDelete}
+          handleCrop={handleStartCrop}
         />
       </div>
+
+      {isCropping && selectedImage && (
+        <ImageCropper
+          onClose={handleClose}
+          image={selectedImage}
+          onCropComplete={handleCropComplete}
+        />
+      )}
     </div>
   );
 }
