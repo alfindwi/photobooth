@@ -31,13 +31,17 @@ export function CameraPage() {
       setIsPotrait(window.innerHeight > window.innerWidth);
     };
 
+    const debounced = () => {
+      setTimeout(checkOrientation, 300);
+    };
+
     checkOrientation();
-    window.addEventListener("resize", checkOrientation);
-    window.addEventListener("orientationchange", checkOrientation);
+    window.addEventListener("resize", debounced);
+    window.addEventListener("orientationchange", debounced);
 
     return () => {
-      window.removeEventListener("resize", checkOrientation);
-      window.removeEventListener("orientationchange", checkOrientation);
+      window.removeEventListener("resize", debounced);
+      window.removeEventListener("orientationchange", debounced);
     };
   }, []);
 
@@ -61,7 +65,6 @@ export function CameraPage() {
       stream = s;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-
         videoRef.current.onloadedmetadata = async () => {
           await new Promise((r) => setTimeout(r, 100));
           videoRef.current?.play();
@@ -74,7 +77,7 @@ export function CameraPage() {
         stream.getTracks().forEach((track) => track.stop());
       }
     };
-  }, []);
+  }, [isPotrait]); 
 
   const resetPhoto = () => {
     setPhotoUrl([]);
@@ -205,9 +208,7 @@ export function CameraPage() {
           to="/"
           className="mb-4 md:mb-0 md:absolute md:left-0 md:top-1/2 md:-translate-y-1/2"
         >
-          <IoMdArrowRoundBack
-            className="text-[#9a0002] ml-4 md:ml-0 text-2xl cursor-pointer md:text-5xl sm:text-6xl"
-          />
+          <IoMdArrowRoundBack className="text-[#9a0002] ml-4 md:ml-0 text-2xl cursor-pointer md:text-5xl sm:text-6xl" />
         </Link>
 
         <p className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-[#9a0002] tracking-tight leading-tight">
