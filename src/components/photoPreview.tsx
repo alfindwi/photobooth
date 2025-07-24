@@ -24,7 +24,7 @@ export default function PhotoPreview({
 
       {photos.length > 0 ? (
         <div className="w-full overflow-x-auto">
-          <div className="grid grid-cols-2 md:grid-cols-2 sm:grid-cols-3 gap-4 w-[445px] md:w-auto sm:w-[650px] sm:mx-auto bg-[#edf5fd] border border-[#ebebeb] px-4 py-4 rounded-md">
+          <div className="grid grid-cols-2 md:grid-cols-2 sm:grid-cols-2 gap-4 w-[320px] md:w-[400px] sm:w-[600px] sm:mx-auto bg-[#edf5fd] border border-[#ebebeb] px-4 py-4 rounded-md">
             {photos.map((url, i) => (
               <div className="relative" key={i}>
                 <img

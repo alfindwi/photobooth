@@ -167,7 +167,7 @@ export function CameraPage() {
   };
 
   const startPhotoSequence = async () => {
-    if (isShooting || photoURL.length >= 3 || isPotrait) return;
+    if (isShooting || photoURL.length >= 3) return;
     setIsShooting(true);
 
     const remaining = 3 - photoURL.length;
@@ -220,26 +220,13 @@ export function CameraPage() {
         <div className="flex flex-col w-full md:w-[600px] items-start gap-6 relative">
           <div className="relative w-full">
             <div className="relative w-full max-w-[600px] aspect-[120/77] mx-auto">
-              {isPotrait ? (
-                <div className="bg-black/10 shadow border border-[#edf5fd] p-4 rounded-md max-w-sm text-center">
-                  <h1 className="text-2xl text-[#9a0002] font-bold mb-2">
-                    Eh.. Layarnya HP-nya di putar dulu yaa!
-                  </h1>
-                  <p className="text-sm text-[#9a0002] font-medium">
-                    Soalnya kalau nggak diputar, hasil fotonya bisa gepeng, Biar
-                    foto kamu tetap kece dan terlihat bagus. diputar layarnya
-                    yaa :D
-                  </p>
-                </div>
-              ) : (
-                <video
+              <video
                   ref={videoRef}
                   autoPlay
                   style={{ filter }}
                   playsInline
                   className="w-full h-full rounded-lg shadow scale-x-[-1] object-cover"
                 />
-              )}
 
               {timer !== null && <TimerOverlay time={timer} />}
               {flash && (
@@ -262,6 +249,7 @@ export function CameraPage() {
             <button
               disabled={isShooting}
               onClick={toggleMirror}
+              style={{fontFamily: "Roboto"}}
               className={`w-12 cursor-pointer border-gray-300 text-[#9a0002] h-12 flex items-center 
               justify-center rounded-full border-2 transition font-semibold text-xs ${
                 isShooting

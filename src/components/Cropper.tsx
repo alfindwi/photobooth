@@ -63,7 +63,7 @@ export default function ImageCropper({
 
   return (
     <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-4 shadow-xl w-[90vw] max-w-md">
+      <div className="bg-white rounded-lg p-4 shadow-xl w-[90vw] max-w-md sm:max-w-sm md:max-w-md lg:max-w-lg">
         <div className="flex items-center justify-center">
           <p className="text-xl font-bold text-[#9a0002] mb-4">
             Biar makin estetik, crop dulu~
