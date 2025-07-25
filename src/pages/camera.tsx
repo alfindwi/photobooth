@@ -61,7 +61,7 @@ export function CameraPage() {
   useEffect(() => {
     let stream: MediaStream;
 
-    navigator.mediaDevices.getUserMedia({ video: true }).then((s) => {
+    navigator.mediaDevices.getUserMedia({ video: true}).then((s) => {
       stream = s;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -147,6 +147,7 @@ export function CameraPage() {
       setTimeout(() => setFlash(false), 200);
     }
   };
+
 
   const handleStartCrop = (index: number) => {
     const photo = photoURL[index];
