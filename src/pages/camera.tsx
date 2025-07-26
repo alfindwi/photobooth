@@ -61,7 +61,7 @@ export function CameraPage() {
   useEffect(() => {
     let stream: MediaStream;
 
-    navigator.mediaDevices.getUserMedia({ video: true}).then((s) => {
+    navigator.mediaDevices.getUserMedia({ video: true }).then((s) => {
       stream = s;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -148,7 +148,6 @@ export function CameraPage() {
     }
   };
 
-
   const handleStartCrop = (index: number) => {
     const photo = photoURL[index];
     setSelectedImage(photo);
@@ -203,117 +202,141 @@ export function CameraPage() {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-4 flex flex-col items-center">
-      <div className="relative w-full text-center mb-6 flex flex-col md:block">
-        <Link
-          to="/"
-          className="mb-4 md:mb-0 md:absolute md:left-0 md:top-1/2 md:-translate-y-1/2"
-        >
-          <IoMdArrowRoundBack className="text-[#9a0002] ml-4 md:ml-0 text-2xl cursor-pointer md:text-5xl sm:text-6xl" />
-        </Link>
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 flex flex-col items-center">
+        <div className="relative w-full text-center mb-8 flex flex-col md:block">
+          <Link
+            to="/"
+            className="mb-6 md:mb-0 md:absolute md:left-0 md:top-1/2 md:-translate-y-1/2 group"
+          >
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 hover:border-[#9a0002] hover:shadow-xl group-hover:bg-red-50">
+              <IoMdArrowRoundBack className="text-[#9a0002] text-2xl " />
+            </div>
+          </Link>
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#9a0002] via-[#cc0003] to-[#9a0002] tracking-tight leading-tight mb-3">
+              Ambil Foto dengan Template Pilihanmu
+            </h1>
+            <div className="w-24 h-1 bg-gradient-to-r from-[#9a0002] to-[#cc0003] rounded-full mx-auto"></div>
+          </div>
+        </div>
 
-        <p className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-[#9a0002] tracking-tight leading-tight">
-          Ambil Foto dengan Template Pilihanmu
-        </p>
-      </div>
+        <div className="flex flex-col lg:flex-row gap-8 mt-6 w-full max-w-7xl items-start">
+          <div className="flex flex-col w-full lg:w-[600px] items-start gap-6 relative">
+            <div className="relative w-full">
+              <div className="relative w-full max-w-[600px] aspect-[120/77] mx-auto bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+                {isPotrait ? (
+                  <div className="bg-black/10 shadow border h-full flex flex-col justify-center items-center border-[#edf5fd] p-4 rounded-md max-w-sm text-center">
+                    <h1 className="text-2xl text-[#9a0002] font-bold mb-2">
+                      Eh.. Layarnya HP-nya di putar dulu yaa!
+                    </h1>
+                    <p className="text-sm text-[#9a0002] font-medium">
+                      Soalnya kalau nggak diputar, hasil fotonya bisa gepeng,
+                      Biar foto kamu tetap kece dan terlihat bagus. diputar
+                      layarnya yaa :D
+                    </p>
+                  </div>
+                ) : (
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    style={{ filter }}
+                    playsInline
+                    className="w-full h-full scale-x-[-1] object-cover"
+                  />
+                )}
+                {timer !== null && <TimerOverlay time={timer} />}
+                {flash && (
+                  <div className="absolute top-0 left-0 w-full h-full bg-white animate-fadeOut z-10" />
+                )}
+              </div>
+            </div>
 
-      <div className="flex flex-col md:flex-row gap-8 mt-10 w-full items-start">
-        <div className="flex flex-col w-full md:w-[600px] items-start gap-6 relative">
-          <div className="relative w-full">
-            <div className="relative w-full max-w-[600px] aspect-[120/77] mx-auto">
-              {isPotrait ? (
-                <div className="bg-black/10 shadow border border-[#edf5fd] p-4 rounded-md max-w-sm text-center">
-                  <h1 className="text-2xl text-[#9a0002] font-bold mb-2">
-                    Eh.. Layarnya HP-nya di putar dulu yaa!
-                  </h1>
-                  <p className="text-sm text-[#9a0002] font-medium">
-                    Soalnya kalau nggak diputar, hasil fotonya bisa gepeng, Biar
-                    foto kamu tetap kece dan terlihat bagus. diputar layarnya
-                    yaa :D
-                  </p>
+            <div className="w-full">
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                <h3 className="text-lg font-bold text-[#9a0002] mb-4">
+                  Filter & Kontrol
+                </h3>
+                <div className="flex gap-3 flex-wrap justify-center mb-4">
+                  {filterOptions.map((opt) => (
+                    <FilterButton
+                      key={opt.value}
+                      icon={opt.name}
+                      active={filter === opt.value}
+                      disabled={isShooting}
+                      onClick={() => setFilter(opt.value)}
+                      bgColor={opt.backgroundColor}
+                    />
+                  ))}
+                  <button
+                    disabled={isShooting}
+                    onClick={toggleMirror}
+                    className={`w-14 h-14 flex items-center justify-center rounded-xl border-2 transition-all duration-300 font-semibold text-xs ${
+                      isShooting
+                        ? "bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed"
+                        : "bg-white text-[#9a0002] border-gray-200 hover:border-[#9a0002] hover:shadow-md hover:bg-red-50"
+                    }`}
+                  >
+                    <GoMirror size={20} />
+                  </button>
                 </div>
-              ) : (
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  style={{ filter }}
-                  playsInline
-                  className="w-full h-full rounded-lg shadow scale-x-[-1] object-cover"
-                />
-              )}
+              </div>
+            </div>
 
-              {timer !== null && <TimerOverlay time={timer} />}
-              {flash && (
-                <div className="absolute top-0 left-0 w-full h-full bg-black/40 animate-fadeOut rounded-lg z-10" />
-              )}
+            <div className="w-full">
+              <Button
+                title={
+                  isShooting
+                    ? "Sedang Mengambil Foto..."
+                    : photoURL.length >= 3
+                    ? "Semua foto sudah terambil!"
+                    : `Ambil Foto (${photoURL.length}/3)`
+                }
+                onClick={startPhotoSequence}
+                disabled={isShooting || isPotrait || photoURL.length >= 3}
+                className={`w-full flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 ${
+                  isShooting || photoURL.length >= 3 || isPotrait
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-[#9a0002] to-[#cc0003] hover:from-[#cc0003] hover:to-[#9a0002] hover:scale-105"
+                }`}
+              />
             </div>
           </div>
 
-          <div className="flex gap-3 flex-wrap justify-center w-full">
-            {filterOptions.map((opt) => (
-              <FilterButton
-                key={opt.value}
-                icon={opt.name}
-                active={filter === opt.value}
-                disabled={isShooting}
-                onClick={() => setFilter(opt.value)}
-                bgColor={opt.backgroundColor}
-              />
-            ))}
-            <button
-              disabled={isShooting}
-              onClick={toggleMirror}
-              style={{ fontFamily: "Roboto" }}
-              className={`w-12 cursor-pointer border-gray-300 text-[#9a0002] h-12 flex items-center 
-              justify-center rounded-full border-2 transition font-semibold text-xs ${
-                isShooting
-                  ? "bg-gray-300 text-white border-gray-300 cursor-not-allowed"
-                  : "bg-white hover:bg-[#9a0002]/10"
-              }`}
-            >
-              <GoMirror size={20} />
-            </button>
-          </div>
+          <canvas ref={canvasRef} className="hidden" />
 
-          <Button
-            title={
-              isShooting
-                ? "Sedang Mengambil Foto"
-                : photoURL.length >= 3
-                ? "Semua foto sudah terambil!"
-                : "Ambil Foto"
-            }
-            onClick={startPhotoSequence}
-            disabled={isShooting || isPotrait || photoURL.length >= 3}
-            className={`z-10 cursor-pointer relative w-full flex items-center justify-center gap-2
-                      px-6 py-2 rounded-md font-semibold text-md transition ${
-                        isShooting || photoURL.length >= 3 || isPotrait
-                          ? "bg-gray-400"
-                          : "bg-[#9a0002]"
-                      }
-                      `}
+          <PhotoPreview
+            photos={photoURL}
+            onReset={resetPhoto}
+            onNext={handleNext}
+            canNext={photoURL.length >= 3}
+            handleDelete={handleDelete}
+            handleCrop={handleStartCrop}
           />
         </div>
 
-        <canvas ref={canvasRef} className="hidden" />
-
-        <PhotoPreview
-          photos={photoURL}
-          onReset={resetPhoto}
-          onNext={handleNext}
-          canNext={photoURL.length >= 3}
-          handleDelete={handleDelete}
-          handleCrop={handleStartCrop}
-        />
+        {isCropping && selectedImage && (
+          <ImageCropper
+            onClose={handleClose}
+            image={selectedImage}
+            onCropComplete={handleCropComplete}
+          />
+        )}
       </div>
 
-      {isCropping && selectedImage && (
-        <ImageCropper
-          onClose={handleClose}
-          image={selectedImage}
-          onCropComplete={handleCropComplete}
-        />
-      )}
+      <style>{`
+        @keyframes fadeOut {
+          0% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
+          }
+        }
+        .animate-fadeOut {
+          animation: fadeOut 0.2s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }

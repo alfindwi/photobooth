@@ -8,38 +8,26 @@ interface FilterButtonProps {
   bgColor?: string;
 }
 
-const FilterButton: React.FC<FilterButtonProps> = ({
-  icon,
-  active,
-  disabled,
-  onClick,
-  bgColor,
-}) => {
-  return (
-    <button
-      disabled={disabled}
-      onClick={onClick}
-      className={`
-        w-12 h-12 flex items-center justify-center rounded-full border-2 font-semibold text-xs transition duration-200
-        ${disabled
-          ? "text-white border-gray-300 cursor-not-allowed"
-          : active
-          ? "text-white border-[#D72323] cursor-pointer"
-          : "text-black border-gray-300 hover:bg-[#D72323]/10 cursor-pointer"
-        }
-      `}
-      style={{
-        backgroundColor: disabled
-          ? "#ccc"
-          : active
-          ? "#D72323"
-          : bgColor || "white", 
-      }}
-    >
-      {icon}
-    </button>
-  );
-};
+const FilterButton = ({ icon, active, disabled, onClick, bgColor }: FilterButtonProps) => (
+  <button
+    disabled={disabled}
+    onClick={onClick}
+    className={`relative w-14 h-14 cursor-pointer flex items-center justify-center rounded-xl border-2 transition-all duration-300 font-semibold text-xs overflow-hidden group ${
+      active
+        ? "border-[#9a0002] bg-[#9a0002] text-white shadow-lg shadow-[#9a0002]/30"
+        : disabled
+          ? "bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed"
+          : "bg-white text-[#9a0002] border-gray-200 hover:border-[#9a0002] hover:shadow-md hover:bg-red-50"
+    }`}
+    style={{ fontFamily: "Roboto" }}
+  >
+    <div
+      className={`absolute inset-0 opacity-10 ${active ? "opacity-20" : "group-hover:opacity-5"}`}
+      style={{ backgroundColor: bgColor }}
+    />
+    <span className="relative z-10">{icon}</span>
+  </button>
+)
 
 
 export default FilterButton;
