@@ -176,7 +176,7 @@ export default function PreviewPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50 px-10 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-red-300 via-white to-red-50 px-10 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-100 rounded-full opacity-20 blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-red-100 rounded-full opacity-20 blur-3xl" />
@@ -196,7 +196,7 @@ export default function PreviewPage() {
         </div>
 
         <div className="relative mb-8">
-          <div className="relative w-[320px] h-[800px] rounded-2xl overflow-hidden shadow-2xl bg-black transform scale-90 sm:scale-100 border-4 border-gray-700">
+          <div className="relative w-[320px] h-[800px] rounded-2xl overflow-hidden shadow-2xl bg-black border-2 border-gray-700">
             {template.position &&
               photos.slice(0, template.position.length).map((photo, idx) => {
                 const pos = template.position[idx];
@@ -241,7 +241,6 @@ export default function PreviewPage() {
             className="group relative bg-gradient-to-r from-[#9a0002] via-[#cc0003] to-[#9a0002] hover:from-[#cc0003] hover:via-[#9a0002] hover:to-[#cc0003] text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:shadow-[#9a0002]/30 transition-all duration-300 w-[280px] sm:w-[320px] overflow-hidden"
             style={{ fontFamily: "Roboto, sans-serif" }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
             <span className="relative z-10 flex items-center justify-center gap-3">
               Download Foto Kamu
             </span>
