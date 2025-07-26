@@ -1,18 +1,19 @@
-import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-interface PhotoPosition {
-  top: string;
-  left: string;
-  width: string;
-  height: string;
-}
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { useParams, Link } from "react-router-dom";
 
 interface Template {
   id: number;
   name: string;
   slug: string;
   img: string;
-  position: PhotoPosition[];
+  position: Array<{
+    top: string;
+    left: string;
+    width: string;
+    height: string;
+  }>;
 }
 
 export default function PreviewPage() {
@@ -39,7 +40,28 @@ export default function PreviewPage() {
     }
   }, [slug]);
 
-  if (!template) return <p>Loading...</p>;
+  if (!template) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl font-semibold text-gray-700">
+            Loading template...
+          </p>
+          <div className="mt-4 flex justify-center">
+            <div className="flex gap-1">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="w-2 h-2 bg-[#9a0002] rounded-full animate-bounce"
+                  style={{ animationDelay: `${i * 0.1}s` }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleDownload = async () => {
     const canvas = canvasRef.current;
@@ -74,14 +96,13 @@ export default function PreviewPage() {
 
       try {
         const img = await loadImage(photoSrc);
-
         const x = pos.left.endsWith("%")
-          ? (canvas.width * parseInt(pos.left)) / 100 - parseInt(pos.width) / 2
-          : parseInt(pos.left);
-
-        const y = parseInt(pos.top);
-        const targetWidth = parseInt(pos.width);
-        const targetHeight = parseInt(pos.height);
+          ? (canvas.width * Number.parseInt(pos.left)) / 100 -
+            Number.parseInt(pos.width) / 2
+          : Number.parseInt(pos.left);
+        const y = Number.parseInt(pos.top);
+        const targetWidth = Number.parseInt(pos.width);
+        const targetHeight = Number.parseInt(pos.height);
 
         const imgRatio = img.width / img.height;
         const targetRatio = targetWidth / targetHeight;
@@ -108,8 +129,8 @@ export default function PreviewPage() {
     // Deteksi platform
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    let newWindow: Window | null = null;
 
+    let newWindow: Window | null = null;
     if (isIOS) {
       newWindow = window.open("", "_blank");
     }
@@ -119,7 +140,6 @@ export default function PreviewPage() {
       ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
 
       const dataUrl = canvas.toDataURL("image/png");
-
       if (!dataUrl) {
         alert("Gagal membuat gambar dari canvas");
         return;
@@ -134,7 +154,6 @@ export default function PreviewPage() {
         </body></html>
       `);
         newWindow.document.close();
-
         alert(
           "Gambar berhasil dibuat. Tekan dan tahan gambar untuk menyimpan."
         );
@@ -157,48 +176,78 @@ export default function PreviewPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center py-5">
-      <div className="relative w-[320px] h-[800px] rounded-xl overflow-hidden shadow-lg bg-black transform scale-90 sm:scale-100 mb-2 sm:mb-5">
-        {template.position &&
-          photos.slice(0, template.position.length).map((photo, idx) => {
-            const pos = template.position[idx];
-            if (!pos) return null;
-
-            return (
-              <img
-                key={idx}
-                src={photo}
-                alt={`photo-${idx}`}
-                className="absolute object-cover z-10 rounded-md"
-                style={{
-                  top: pos.top,
-                  left: pos.left,
-                  width: pos.width,
-                  height: pos.height,
-                  transform: "translateX(-50%)",
-                }}
-              />
-            );
-          })}
-        <canvas ref={canvasRef} className="hidden" />
-
-        <img
-          src={template.img}
-          alt="Template overlay"
-          className="absolute top-0 left-0 w-full h-full z-20 pointer-events-none"
-        />
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50 px-10 relative overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-100 rounded-full opacity-20 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-red-100 rounded-full opacity-20 blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-red-100/10 to-transparent rounded-full blur-3xl" />
       </div>
 
-      <button
-        onClick={handleDownload}
-        className="bg-[#9a0002] w-[250px] md:w-[300px] text-white px-4 py-2 rounded hover:bg-red-700 transition shadow"
-        style={{ fontFamily: "Roboto, sans-serif" }}
-      >
-        Download your photo
-      </button>
-      <a href="/" className="text-[#9a0002] mt-2">
-        Pilih template lain
-      </a>
+      <div className="relative z-10 flex flex-col items-center justify-center py-8 px-4">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#9a0002] via-[#cc0003] to-[#9a0002] tracking-tight leading-tight mb-3">
+            Preview Hasil Foto
+          </h1>
+          <p className="text-gray-600 font-medium max-w-md mx-auto">
+            Lihat hasil foto Anda dengan template yang dipilih. Jika sudah puas,
+            silakan download!
+          </p>
+          <div className="w-24 h-1 bg-gradient-to-r from-[#9a0002] to-[#cc0003] rounded-full mx-auto mt-4"></div>
+        </div>
+
+        <div className="relative mb-8">
+          <div className="relative w-[320px] h-[800px] rounded-2xl overflow-hidden shadow-2xl bg-black transform scale-90 sm:scale-100 border-4 border-gray-700">
+            {template.position &&
+              photos.slice(0, template.position.length).map((photo, idx) => {
+                const pos = template.position[idx];
+                if (!pos) return null;
+
+                return (
+                  <img
+                    key={idx}
+                    src={photo || "/placeholder.svg"}
+                    alt={`photo-${idx}`}
+                    className="absolute object-cover z-10 rounded-md shadow-lg"
+                    style={{
+                      top: pos.top,
+                      left: pos.left,
+                      width: pos.width,
+                      height: pos.height,
+                      transform: "translateX(-50%)",
+                    }}
+                  />
+                );
+              })}
+
+            <canvas ref={canvasRef} className="hidden" />
+
+            <img
+              src={template.img || "/placeholder.svg"}
+              alt="Template overlay"
+              className="absolute top-0 left-0 w-full h-full z-20 pointer-events-none"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 items-center">
+          <Link
+            to="/"
+            className="group flex items-center gap-2 text-[#9a0002] hover:text-[#cc0003] font-semibold transition-all duration-300 bg-white/80 backdrop-blur-sm hover:bg-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl border border-red-100 hover:border-red-200"
+          >
+            Pilih Template Lain
+          </Link>
+          <button
+            onClick={handleDownload}
+            className="group relative bg-gradient-to-r from-[#9a0002] via-[#cc0003] to-[#9a0002] hover:from-[#cc0003] hover:via-[#9a0002] hover:to-[#cc0003] text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:shadow-[#9a0002]/30 transition-all duration-300 w-[280px] sm:w-[320px] overflow-hidden"
+            style={{ fontFamily: "Roboto, sans-serif" }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+            <span className="relative z-10 flex items-center justify-center gap-3">
+              Download Foto Kamu
+            </span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
