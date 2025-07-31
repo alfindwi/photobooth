@@ -70,17 +70,18 @@ export default function PreviewPage() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Ukuran canvas default
-    canvas.width = 320;
-    canvas.height = 800;
+    const scale = 3;
+    const width = 320;
+    const height = 800;
+    canvas.width = width * scale;
+    canvas.height = height * scale;
+    ctx.scale(scale, scale);
 
-    // Latar hitam
     ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, width, height);
 
-    // Fungsi untuk load image
-    const loadImage = (src: string) =>
-      new Promise<HTMLImageElement>((resolve, reject) => {
+    const loadImage = (src: string): Promise<HTMLImageElement> =>
+      new Promise((resolve, reject) => {
         const img = new Image();
         img.crossOrigin = "anonymous";
         img.src = src;
@@ -88,7 +89,6 @@ export default function PreviewPage() {
         img.onerror = reject;
       });
 
-    // Gambar user
     for (let idx = 0; idx < template.position.length; idx++) {
       const pos = template.position[idx];
       const photoSrc = photos[idx];
@@ -96,8 +96,9 @@ export default function PreviewPage() {
 
       try {
         const img = await loadImage(photoSrc);
+
         const x = pos.left.endsWith("%")
-          ? (canvas.width * Number.parseInt(pos.left)) / 100 -
+          ? (width * Number.parseInt(pos.left)) / 100 -
             Number.parseInt(pos.width) / 2
           : Number.parseInt(pos.left);
         const y = Number.parseInt(pos.top);
@@ -111,7 +112,6 @@ export default function PreviewPage() {
           sy = 0,
           sw = img.width,
           sh = img.height;
-
         if (imgRatio > targetRatio) {
           sw = img.height * targetRatio;
           sx = (img.width - sw) / 2;
@@ -126,18 +126,9 @@ export default function PreviewPage() {
       }
     }
 
-    // Deteksi platform
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    let newWindow: Window | null = null;
-    if (isIOS) {
-      newWindow = window.open("", "_blank");
-    }
-
     try {
       const overlay = await loadImage(template.img);
-      ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(overlay, 0, 0, width, height);
 
       const dataUrl = canvas.toDataURL("image/png");
       if (!dataUrl) {
@@ -145,7 +136,13 @@ export default function PreviewPage() {
         return;
       }
 
-      if (isIOS && newWindow) {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+      if (isIOS) {
+        const newWindow = window.open("", "_blank");
+        if (!newWindow) return;
+
         newWindow.document.write(`
         <html><head><title>Download</title></head>
         <body style="margin:0">

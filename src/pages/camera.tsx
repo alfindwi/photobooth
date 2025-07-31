@@ -9,6 +9,7 @@ import TimerOverlay from "../components/timeOverlay";
 import type { Template } from "../type/ITemplate";
 import { filterOptions } from "../type/filterOptions";
 import { IoMdArrowRoundBack } from "react-icons/io";
+import UploadButton from "../components/uploadButton";
 
 export function CameraPage() {
   const { slug } = useParams();
@@ -167,7 +168,7 @@ export function CameraPage() {
   };
 
   const startPhotoSequence = async () => {
-    if (isShooting || photoURL.length >= 3 || isPotrait) return;
+    if (isShooting || photoURL.length >= 3) return;
     setIsShooting(true);
 
     const remaining = 3 - photoURL.length;
@@ -224,27 +225,17 @@ export function CameraPage() {
         <div className="flex flex-col lg:flex-row gap-8 mt-6 w-full max-w-7xl items-start">
           <div className="flex flex-col w-full lg:w-[600px] items-start gap-6 relative">
             <div className="relative w-full">
+              <div className="flex justify-center items-center mb-5">
+                <UploadButton onPhotosSelected={setPhotoUrl} />
+              </div>
               <div className="relative w-full max-w-[600px] aspect-[120/77] mx-auto bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
-                {isPotrait ? (
-                  <div className="bg-black/10 shadow border h-full flex flex-col justify-center items-center border-[#edf5fd] p-4 rounded-md max-w-sm text-center">
-                    <h1 className="text-2xl text-[#9a0002] font-bold mb-2">
-                      Eh.. Layarnya HP-nya di putar dulu yaa!
-                    </h1>
-                    <p className="text-sm text-[#9a0002] font-medium">
-                      Soalnya kalau nggak diputar, hasil fotonya bisa gepeng,
-                      Biar foto kamu tetap kece dan terlihat bagus. diputar
-                      layarnya yaa :D
-                    </p>
-                  </div>
-                ) : (
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    style={{ filter }}
-                    playsInline
-                    className="w-full h-full scale-x-[-1] object-cover"
-                  />
-                )}
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  style={{ filter }}
+                  playsInline
+                  className="w-full h-full scale-x-[-1] object-cover"
+                />
                 {timer !== null && <TimerOverlay time={timer} />}
                 {flash && (
                   <div className="absolute top-0 left-0 w-full h-full bg-white animate-fadeOut z-10" />
@@ -293,9 +284,9 @@ export function CameraPage() {
                     : `Ambil Foto (${photoURL.length}/3)`
                 }
                 onClick={startPhotoSequence}
-                disabled={isShooting || isPotrait || photoURL.length >= 3}
+                disabled={isShooting || photoURL.length >= 3}
                 className={`w-full flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 ${
-                  isShooting || photoURL.length >= 3 || isPotrait
+                  isShooting || photoURL.length >= 3
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-gradient-to-r from-[#9a0002] to-[#cc0003] hover:from-[#cc0003] hover:to-[#9a0002] hover:scale-105"
                 }`}
