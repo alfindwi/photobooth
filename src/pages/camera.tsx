@@ -230,7 +230,7 @@ export function CameraPage() {
         <div className="flex flex-col lg:flex-row gap-8 mt-6 w-full max-w-7xl items-start">
           <div className="flex flex-col w-full lg:w-[600px] items-start gap-6 relative">
             <div className="relative w-full">
-              <div className="flex justify-center items-center mb-5">
+              <div className="flex flex-col justify-center items-center">
                 <UploadButton onPhotosSelected={setPhotoUrl} />
               </div>
               <div className="relative w-full max-w-[600px] aspect-[120/77] mx-auto bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
