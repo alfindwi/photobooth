@@ -93,6 +93,11 @@ export function CameraPage() {
   };
 
   const handleNext = () => {
+    if (isCropping) {
+      alert("Selesaikan crop terlebih dahulu!");
+      return;
+    }
+
     if (photoURL.length < 3) {
       alert("Ambil 3 foto terlebih dahulu!");
       return;
@@ -155,9 +160,9 @@ export function CameraPage() {
     setIsCropping(true);
   };
 
-  const handleCropComplete = (photoURL: string) => {
+  const handleCropComplete = (cropped: string) => {
     setPhotoUrl((prev) =>
-      prev.map((url) => (url === selectedImage ? photoURL : url))
+      prev.map((url) => (url === selectedImage ? cropped : url))
     );
     setIsCropping(false);
     setSelectedImage(null);

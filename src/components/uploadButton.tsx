@@ -46,7 +46,10 @@ export default function UploadButton({ onPhotosSelected }: { onPhotosSelected: (
         multiple
         ref={fileInputRef}
         style={{ display: "none" }}
-        onChange={handleFileChange}
+        onChange={(e) => {
+          handleFileChange(e);
+          e.target.value = "";
+        }}
       />
     </div>
   );
