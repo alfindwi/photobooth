@@ -1,4 +1,3 @@
-import heic2any from "heic2any";
 import type React from "react";
 import { useRef } from "react";
 
@@ -27,33 +26,11 @@ export default function UploadButton({
         file.name.toLowerCase().endsWith(".heic") ||
         file.name.toLowerCase().endsWith(".heif");
 
-      let processedFile: Blob = file;
-
       if (isHeic) {
         alert(
-          `File "${file.name}" menggunakan format HEIC/HEIF.\nFormat ini kurang kompatibel.\nAkan dikonversi ke JPEG.`
+          `File "${file.name}" menggunakan format HEIC/HEIF.\nFormat ini tidak didukung. Silakan ubah ke JPG atau PNG sebelum upload.`
         );
-
-        try {
-          const converted = await heic2any({
-            blob: file,
-            toType: "image/jpeg",
-            quality: 0.9,
-          });
-
-          // Jika hasilnya array, ambil frame pertama
-          if (Array.isArray(converted)) {
-            processedFile = converted[0];
-          } else {
-            processedFile = converted as Blob;
-          }
-        } catch (err) {
-          console.error(`Gagal konversi file HEIC/HEIF: ${file.name}`, err);
-          alert(
-            `File "${file.name}" tidak bisa dikonversi.\nGunakan format JPG atau PNG.`
-          );
-          continue;
-        }
+        continue; // skip file ini
       }
 
       try {
@@ -67,7 +44,7 @@ export default function UploadButton({
             }
           };
           reader.onerror = reject;
-          reader.readAsDataURL(processedFile);
+          reader.readAsDataURL(file);
         });
 
         base64Images.push(base64);
@@ -79,8 +56,6 @@ export default function UploadButton({
 
     if (base64Images.length > 0) {
       onPhotosSelected(base64Images);
-    } else {
-      alert("Tidak ada foto yang berhasil diproses.");
     }
 
     e.target.value = "";
@@ -115,7 +90,7 @@ export default function UploadButton({
           <div className="bg-gradient-to-r from-red-50 to-white px-3 py-2 rounded-lg shadow-sm border border-red-100/50">
             <div className="flex items-center gap-2">
               <p className="text-xs font-medium text-gray-700">
-                Maksimal 3 foto Format: JPG, PNG, HEIC (akan dikonversi)
+                Maksimal 3 foto (Format: JPG, JPEG, PNG)
               </p>
             </div>
           </div>
