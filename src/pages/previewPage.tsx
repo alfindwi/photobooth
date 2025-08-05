@@ -130,31 +130,60 @@ export default function PreviewPage() {
       const overlay = await loadImage(template.img);
       ctx.drawImage(overlay, 0, 0, width, height);
 
-      const dataUrl = canvas.toDataURL("image/png");
-      if (!dataUrl) {
-        alert("Gagal membuat gambar dari canvas");
-        return;
-      }
-
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
       if (isIOS) {
-        const newWindow = window.open("", "_blank");
-        if (!newWindow) return;
+        // Convert canvas to blob for better iOS support
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              alert("Gagal membuat gambar dari canvas");
+              return;
+            }
 
-        newWindow.document.write(`
-        <html><head><title>Download</title></head>
-        <body style="margin:0">
-          <img src="${dataUrl}" style="width:100%;height:auto"/>
-          <p style="text-align:center;font-size:14px">Tekan dan tahan gambar untuk menyimpan</p>
-        </body></html>
-      `);
-        newWindow.document.close();
-        alert(
-          "Gambar berhasil dibuat. Tekan dan tahan gambar untuk menyimpan."
+            // Create object URL from blob
+            const url = URL.createObjectURL(blob);
+
+            // Use setTimeout to avoid popup blocker
+            setTimeout(() => {
+              const newWindow = window.open("", "_blank");
+              if (!newWindow) {
+                // Fallback: try direct navigation
+                window.location.href = url;
+                return;
+              }
+
+              newWindow.document.write(`
+            <html><head><title>Download</title></head>
+            <body style="margin:0">
+              <img src="${url}" style="width:100%;height:auto"/>
+              <p style="text-align:center;font-size:14px">Tekan dan tahan gambar untuk menyimpan</p>
+            </body></html>
+          `);
+              newWindow.document.close();
+
+              // Clean up object URL after some time
+              setTimeout(() => {
+                URL.revokeObjectURL(url);
+              }, 60000); // 1 minute
+            }, 100);
+
+            alert(
+              "Gambar berhasil dibuat. Tekan dan tahan gambar untuk menyimpan."
+            );
+          },
+          "image/png",
+          1.0
         );
       } else {
+        // For non-iOS devices, use the original method
+        const dataUrl = canvas.toDataURL("image/png");
+        if (!dataUrl) {
+          alert("Gagal membuat gambar dari canvas");
+          return;
+        }
+
         const link = document.createElement("a");
         link.href = dataUrl;
         link.download = `KARNATESA_${Math.floor(Math.random() * 1000000)}.png`;

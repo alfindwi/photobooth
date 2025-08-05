@@ -42,7 +42,6 @@ export default function UploadButton({
 
   return (
     <div className="flex flex-col justify-center items-center mb-8">
-      {/* Upload Button */}
       <button
         onClick={handleClick}
         className="group relative bg-gradient-to-r from-[#9a0002] via-[#cc0003] to-[#9a0002] hover:from-[#cc0003] hover:via-[#9a0002] hover:to-[#cc0003] text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:shadow-[#9a0002]/30 transition-all duration-300 overflow-hidden"
@@ -65,9 +64,7 @@ export default function UploadButton({
         }}
       />
 
-      {/* Enhanced Info Section */}
       <div className="mt-6 space-y-3">
-        {/* Additional Tips */}
         <div className="flex flex-wrap justify-center gap-3 text-center">
           <div className="bg-gradient-to-r from-red-50 to-white px-3 py-2 rounded-lg shadow-sm border border-red-100/50">
             <div className="flex items-center gap-2">
