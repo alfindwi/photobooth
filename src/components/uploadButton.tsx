@@ -1,5 +1,3 @@
-"use client";
-
 import heic2any from "heic2any";
 import type React from "react";
 import { useRef } from "react";
@@ -20,7 +18,6 @@ export default function UploadButton({
     if (!files || files.length === 0) return;
 
     const fileArray = Array.from(files).slice(0, 3);
-
     const base64Images: string[] = [];
 
     for (const file of fileArray) {
@@ -33,6 +30,11 @@ export default function UploadButton({
       let processedFile: Blob = file;
 
       if (isHeic) {
+        // Tampilkan alert meskipun konversi berhasil
+        alert(
+          `File "${file.name}" menggunakan format HEIC/HEIF.\nFormat ini kurang kompatibel.\nDisarankan gunakan format JPG atau PNG.`
+        );
+
         try {
           const converted = await heic2any({
             blob: file,
@@ -43,7 +45,7 @@ export default function UploadButton({
         } catch (err) {
           console.error(`Gagal konversi file HEIC/HEIF: ${file.name}`, err);
           alert(
-            `File "${file.name}" berformat HEIC/HEIF dan tidak bisa dikonversi. Gunakan format JPG atau PNG.`
+            `File "${file.name}" tidak bisa dikonversi.\nGunakan format JPG atau PNG.`
           );
           continue;
         }
