@@ -34,6 +34,8 @@ export default function UploadButton({
     Promise.all(promises)
       .then((base64Images) => {
         onPhotosSelected(base64Images);
+        // Reset input setelah sukses
+        e.target.value = "";
       })
       .catch((err) => {
         console.error("Gagal membaca file", err);
