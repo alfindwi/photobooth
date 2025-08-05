@@ -140,24 +140,7 @@ export default function PreviewPage() {
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
       if (isIOS) {
-        const newWindow = window.open("", "_blank");
-        if (!newWindow) {
-          alert("Popup diblokir. Silakan izinkan popup di browser Anda.");
-          return;
-        }
-
-        const html = `
-    <html>
-      <head><title>Download</title></head>
-      <body style="margin:0;padding:0;text-align:center;">
-        <img src="${dataUrl}" style="width:100%;height:auto;" />
-        <p>Tekan dan tahan gambar untuk menyimpan ke galeri</p>
-      </body>
-    </html>
-  `;
-        newWindow.document.open();
-        newWindow.document.write(html);
-        newWindow.document.close();
+        window.location.href = dataUrl;
         return;
       } else {
         const link = document.createElement("a");
