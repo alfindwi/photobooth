@@ -30,9 +30,8 @@ export default function UploadButton({
       let processedFile: Blob = file;
 
       if (isHeic) {
-        // Tampilkan alert meskipun konversi berhasil
         alert(
-          `File "${file.name}" menggunakan format HEIC/HEIF.\nFormat ini kurang kompatibel.\nDisarankan gunakan format JPG atau PNG.`
+          `File "${file.name}" menggunakan format HEIC/HEIF.\nFormat ini kurang kompatibel.\nAkan dikonversi ke JPEG.`
         );
 
         try {
@@ -41,7 +40,13 @@ export default function UploadButton({
             toType: "image/jpeg",
             quality: 0.9,
           });
-          processedFile = converted as Blob;
+
+          // Jika hasilnya array, ambil frame pertama
+          if (Array.isArray(converted)) {
+            processedFile = converted[0];
+          } else {
+            processedFile = converted as Blob;
+          }
         } catch (err) {
           console.error(`Gagal konversi file HEIC/HEIF: ${file.name}`, err);
           alert(
@@ -110,7 +115,7 @@ export default function UploadButton({
           <div className="bg-gradient-to-r from-red-50 to-white px-3 py-2 rounded-lg shadow-sm border border-red-100/50">
             <div className="flex items-center gap-2">
               <p className="text-xs font-medium text-gray-700">
-                Maksimal 3 foto Format: JPG, PNG
+                Maksimal 3 foto Format: JPG, PNG, HEIC (akan dikonversi)
               </p>
             </div>
           </div>
