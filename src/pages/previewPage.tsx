@@ -140,7 +140,24 @@ export default function PreviewPage() {
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
       if (isIOS) {
-        window.location.href = dataUrl;
+        const newWindow = window.open();
+        if (!newWindow) {
+          alert("Popup diblokir. Izinkan pop-up di browser Anda.");
+          return;
+        }
+
+        newWindow.document.write(`
+    <html>
+      <head><title>Download</title></head>
+      <body style="margin:0;padding:0;text-align:center;">
+        <img src="${dataUrl}" style="width:100%;height:auto;" />
+        <p style="font-family:sans-serif;margin-top:10px;">
+          Tekan dan tahan gambar lalu pilih "Simpan Gambar"
+        </p>
+      </body>
+    </html>
+  `);
+        newWindow.document.close();
         return;
       } else {
         const link = document.createElement("a");

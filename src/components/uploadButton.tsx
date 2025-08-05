@@ -18,30 +18,73 @@ export default function UploadButton({
     const files = e.target.files;
     if (!files) return;
 
-    const fileArray = Array.from(files).slice(0, 3); // Max 3
+    if (files.length === 0) return;
 
-    const promises = fileArray.map((file) => {
+    const fileArray = Array.from(files).slice(0, 3);
+
+    const validTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/heic",
+      "image/heif",
+    ];
+    const validFiles = fileArray.filter((file) => {
+      const isValid = validTypes.some(
+        (type) =>
+          file.type.toLowerCase().includes(type.split("/")[1]) ||
+          file.name.toLowerCase().endsWith(`.${type.split("/")[1]}`)
+      );
+      return isValid;
+    });
+
+    if (validFiles.length === 0) {
+      alert("Format file tidak didukung. Gunakan JPG, PNG, atau HEIC");
+      e.target.value = "";
+      return;
+    }
+
+    const promises = validFiles.map((file, index) => {
       return new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
+
         reader.onloadend = () => {
-          if (typeof reader.result === "string") resolve(reader.result);
+          if (typeof reader.result === "string") {
+            resolve(reader.result);
+          } else {
+            reject(new Error("Failed to read file as string"));
+          }
         };
-        reader.onerror = reject;
+
+        reader.onerror = (error) => {
+          console.error(`Error reading file ${index + 1}:`, error);
+          reject(error);
+        };
+
+        setTimeout(() => {
+          reject(new Error("File reading timeout"));
+        }, 10000);
+
         reader.readAsDataURL(file);
       });
     });
 
     Promise.all(promises)
       .then((base64Images) => {
-        onPhotosSelected(base64Images);
-        // Reset input setelah sukses
+        // Pastikan ada hasil
+        if (base64Images.length > 0) {
+          onPhotosSelected(base64Images);
+        } else {
+          alert("Tidak ada foto yang berhasil diproses");
+        }
         e.target.value = "";
       })
       .catch((err) => {
-        console.error("Gagal membaca file", err);
+        console.error("Gagal membaca file:", err);
+        alert("Gagal memproses foto. Coba lagi atau gunakan foto lain.");
+        e.target.value = "";
       });
   };
-
   return (
     <div className="flex flex-col justify-center items-center mb-8">
       <button
