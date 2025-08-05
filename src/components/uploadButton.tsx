@@ -21,27 +21,36 @@ export default function UploadButton({
 
     const fileArray = Array.from(files).slice(0, 3);
 
-    const promises = fileArray.map(async (file) => {
+    const base64Images: string[] = [];
+
+    for (const file of fileArray) {
       const isHeic =
         file.type === "image/heic" ||
         file.type === "image/heif" ||
         file.name.toLowerCase().endsWith(".heic") ||
         file.name.toLowerCase().endsWith(".heif");
 
-      try {
-        let processedFile: File | Blob = file;
+      let processedFile: Blob = file;
 
-        if (isHeic) {
-          console.log(`Konversi HEIC file ${file.name}...`);
+      if (isHeic) {
+        try {
           const converted = await heic2any({
             blob: file,
             toType: "image/jpeg",
             quality: 0.9,
           });
           processedFile = converted as Blob;
+        } catch (err) {
+          console.error(`Gagal konversi file HEIC/HEIF: ${file.name}`, err);
+          alert(
+            `File "${file.name}" berformat HEIC/HEIF dan tidak bisa dikonversi. Gunakan format JPG atau PNG.`
+          );
+          continue;
         }
+      }
 
-        return new Promise<string>((resolve, reject) => {
+      try {
+        const base64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onloadend = () => {
             if (typeof reader.result === "string") {
@@ -50,40 +59,24 @@ export default function UploadButton({
               reject(new Error("Gagal membaca file"));
             }
           };
-          reader.onerror = (error) => {
-            console.error(`Error membaca file ${file.name}:`, error);
-            reject(error);
-          };
-
-          setTimeout(() => {
-            reject(new Error("Timeout membaca file"));
-          }, 10000);
-
+          reader.onerror = reject;
           reader.readAsDataURL(processedFile);
         });
-      } catch (err) {
-        console.error(`Gagal memproses file ${file.name}:`, err);
-        throw err;
-      }
-    });
 
-    Promise.all(promises)
-      .then((base64Images) => {
-        if (base64Images.length > 0) {
-          console.log("Foto berhasil diproses:", base64Images);
-          onPhotosSelected(base64Images);
-        } else {
-          alert("Tidak ada foto yang berhasil diproses.");
-        }
-        e.target.value = "";
-      })
-      .catch((err) => {
-        console.error("Gagal memproses foto:", err);
-        alert(
-          "Gagal memproses salah satu foto. Coba lagi dengan file yang valid atau lebih kecil."
-        );
-        e.target.value = "";
-      });
+        base64Images.push(base64);
+      } catch (err) {
+        console.error(`Gagal membaca file: ${file.name}`, err);
+        alert(`File "${file.name}" gagal diproses. Gunakan file lain.`);
+      }
+    }
+
+    if (base64Images.length > 0) {
+      onPhotosSelected(base64Images);
+    } else {
+      alert("Tidak ada foto yang berhasil diproses.");
+    }
+
+    e.target.value = "";
   };
 
   return (
