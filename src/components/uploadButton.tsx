@@ -1,5 +1,6 @@
 "use client";
 
+import heic2any from "heic2any";
 import type React from "react";
 import { useRef } from "react";
 
@@ -14,77 +15,77 @@ export default function UploadButton({
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
-
-    if (files.length === 0) return;
+    if (!files || files.length === 0) return;
 
     const fileArray = Array.from(files).slice(0, 3);
 
-    const validTypes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/heic",
-      "image/heif",
-    ];
-    const validFiles = fileArray.filter((file) => {
-      const isValid = validTypes.some(
-        (type) =>
-          file.type.toLowerCase().includes(type.split("/")[1]) ||
-          file.name.toLowerCase().endsWith(`.${type.split("/")[1]}`)
-      );
-      return isValid;
-    });
+    const promises = fileArray.map(async (file) => {
+      const isHeic =
+        file.type === "image/heic" ||
+        file.type === "image/heif" ||
+        file.name.toLowerCase().endsWith(".heic") ||
+        file.name.toLowerCase().endsWith(".heif");
 
-    if (validFiles.length === 0) {
-      alert("Format file tidak didukung. Gunakan JPG, PNG, atau HEIC");
-      e.target.value = "";
-      return;
-    }
+      try {
+        let processedFile: File | Blob = file;
 
-    const promises = validFiles.map((file, index) => {
-      return new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
+        if (isHeic) {
+          console.log(`Konversi HEIC file ${file.name}...`);
+          const converted = await heic2any({
+            blob: file,
+            toType: "image/jpeg",
+            quality: 0.9,
+          });
+          processedFile = converted as Blob;
+        }
 
-        reader.onloadend = () => {
-          if (typeof reader.result === "string") {
-            resolve(reader.result);
-          } else {
-            reject(new Error("Failed to read file as string"));
-          }
-        };
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            if (typeof reader.result === "string") {
+              resolve(reader.result);
+            } else {
+              reject(new Error("Gagal membaca file"));
+            }
+          };
+          reader.onerror = (error) => {
+            console.error(`Error membaca file ${file.name}:`, error);
+            reject(error);
+          };
 
-        reader.onerror = (error) => {
-          console.error(`Error reading file ${index + 1}:`, error);
-          reject(error);
-        };
+          setTimeout(() => {
+            reject(new Error("Timeout membaca file"));
+          }, 10000);
 
-        setTimeout(() => {
-          reject(new Error("File reading timeout"));
-        }, 10000);
-
-        reader.readAsDataURL(file);
-      });
+          reader.readAsDataURL(processedFile);
+        });
+      } catch (err) {
+        console.error(`Gagal memproses file ${file.name}:`, err);
+        throw err;
+      }
     });
 
     Promise.all(promises)
       .then((base64Images) => {
-        // Pastikan ada hasil
         if (base64Images.length > 0) {
+          console.log("Foto berhasil diproses:", base64Images);
           onPhotosSelected(base64Images);
         } else {
-          alert("Tidak ada foto yang berhasil diproses");
+          alert("Tidak ada foto yang berhasil diproses.");
         }
         e.target.value = "";
       })
       .catch((err) => {
-        console.error("Gagal membaca file:", err);
-        alert("Gagal memproses foto. Coba lagi atau gunakan foto lain.");
+        console.error("Gagal memproses foto:", err);
+        alert(
+          "Gagal memproses salah satu foto. Coba lagi dengan file yang valid atau lebih kecil."
+        );
         e.target.value = "";
       });
   };
+
   return (
     <div className="flex flex-col justify-center items-center mb-8">
       <button
