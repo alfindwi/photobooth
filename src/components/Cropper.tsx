@@ -93,6 +93,7 @@ export default function ImageCropper({
               onChange={(newCrop) => setCrop(newCrop)}
               ruleOfThirds
               aspect={120 / 77}
+              className="z-10"
             >
               <img
                 src={image || "/placeholder.svg"}
@@ -104,7 +105,7 @@ export default function ImageCropper({
           </div>
         </div>
 
-        <div className="px-6 py-5 ">
+        <div className="px-6 py-5 z-50">
           <div className="flex gap-3">
             <button
               onClick={handleClose}
@@ -114,11 +115,10 @@ export default function ImageCropper({
             </button>
             <button
               onClick={handleCrop}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-[#9a0002] to-[#cc0003] hover:from-[#cc0003] hover:to-[#9a0002] text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#9a0002]/25 relative overflow-hidden group"
+              className="touch-manipulation cursor-pointer z-20 flex-1 px-6 py-3 bg-gradient-to-r from-[#9a0002] to-[#cc0003] hover:from-[#cc0003] hover:to-[#9a0002] text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#9a0002]/25 relative overflow-hidden group"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
               <span className="relative z-10 flex items-center justify-center gap-2">
-                {" "}
                 Simpan
               </span>
             </button>
