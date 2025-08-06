@@ -1,5 +1,6 @@
 import type React from "react";
 import { useRef } from "react";
+import toast from "react-hot-toast";
 
 export default function UploadButton({
   onPhotosSelected,
@@ -27,10 +28,10 @@ export default function UploadButton({
         file.name.toLowerCase().endsWith(".heif");
 
       if (isHeic) {
-        alert(
-          `File "${file.name}" menggunakan format HEIC/HEIF.\nFormat ini tidak didukung. Silakan ubah ke JPG atau PNG sebelum upload.`
+        toast.error(
+          `"${file.name}" berformat HEIC/HEIF. Ubah ke JPG JPEG atau PNG sebelum upload.`
         );
-        continue; // skip file ini
+        continue;
       }
 
       try {

@@ -10,6 +10,7 @@ import type { Template } from "../type/ITemplate";
 import { filterOptions } from "../type/filterOptions";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import UploadButton from "../components/uploadButton";
+import toast from "react-hot-toast";
 
 export function CameraPage() {
   const { slug } = useParams();
@@ -94,12 +95,12 @@ export function CameraPage() {
 
   const handleNext = () => {
     if (isCropping) {
-      alert("Selesaikan crop terlebih dahulu!");
+      toast.error("Harap selesaikan cropping terlebih dahulu!");
       return;
     }
 
     if (photoURL.length < 3) {
-      alert("Ambil 3 foto terlebih dahulu!");
+      toast.error("Harap ambil minimal 3 foto!");
       return;
     }
 
