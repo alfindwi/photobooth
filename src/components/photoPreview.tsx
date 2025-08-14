@@ -92,7 +92,7 @@ export default function PhotoPreview({
         <button
           onClick={onNext}
           disabled={!canNext}
-          className={`w-full flex items-center justify-center gap-3 px-2 py-2 rounded-2xl font-bold text-lg transition-all duration-300 ${
+          className={`w-full flex items-center mt-2 justify-center gap-3 px-2 py-2 rounded-2xl font-bold text-lg transition-all duration-300 ${
             !canNext
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-gradient-to-r from-[#9a0002] to-[#cc0003] hover:from-[#cc0003] hover:to-[#9a0002] "
