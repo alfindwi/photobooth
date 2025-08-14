@@ -18,7 +18,7 @@ export default function UploadButton({
     if (!files || files.length === 0) return;
 
     const fileArray = Array.from(files).slice(0, 3);
-    const base64Images: string[] = [];
+    const photoUrls: string[] = [];
 
     for (const file of fileArray) {
       const isHeic =
@@ -34,29 +34,13 @@ export default function UploadButton({
         continue;
       }
 
-      try {
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            if (typeof reader.result === "string") {
-              resolve(reader.result);
-            } else {
-              reject(new Error("Gagal membaca file"));
-            }
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-
-        base64Images.push(base64);
-      } catch (err) {
-        console.error(`Gagal membaca file: ${file.name}`, err);
-        alert(`File "${file.name}" gagal diproses. Gunakan file lain.`);
-      }
+      // langsung pakai blob url
+      const url = URL.createObjectURL(file);
+      photoUrls.push(url);
     }
 
-    if (base64Images.length > 0) {
-      onPhotosSelected(base64Images);
+    if (photoUrls.length > 0) {
+      onPhotosSelected(photoUrls);
     }
 
     e.target.value = "";
