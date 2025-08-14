@@ -70,7 +70,7 @@ export default function PreviewPage() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const scale = 3; // untuk hasil tajam
+    const scale = 3;
     const width = 320;
     const height = 800;
     canvas.width = width * scale;
@@ -89,7 +89,6 @@ export default function PreviewPage() {
         img.onerror = reject;
       });
 
-    // Gambar foto
     for (let idx = 0; idx < template.position.length; idx++) {
       const pos = template.position[idx];
       const photoSrc = photos[idx];
@@ -131,7 +130,6 @@ export default function PreviewPage() {
       }
     }
 
-    // Gambar overlay template
     try {
       const overlay = await loadImage(template.img);
       ctx.drawImage(overlay, 0, 0, width, height);
