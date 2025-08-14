@@ -48,7 +48,7 @@ export function CameraPage() {
   }, []);
 
   useEffect(() => {
-    fetch("https://api.npoint.io/acfa037961d19a2c8985")
+    fetch("https://jsonkeeper.com/b/QVSKV")
       .then((res) => res.json())
       .then((data: Template[]) => {
         const selected = data.find((item) => item.slug === slug);

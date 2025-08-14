@@ -23,7 +23,7 @@ export default function PreviewPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    fetch("https://api.npoint.io/acfa037961d19a2c8985")
+    fetch("https://jsonkeeper.com/b/GFE5U")
       .then((res) => res.json())
       .then((data: Template[]) => {
         const selected = data.find((item) => item.slug === slug);
@@ -64,13 +64,13 @@ export default function PreviewPage() {
   }
 
   const handleDownload = async () => {
-    const canvas = canvasRef.current;
-    if (!canvas || !template) return;
+    if (!canvasRef.current || !template) return;
 
+    const canvas = canvasRef.current as HTMLCanvasElement;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const scale = 3;
+    const scale = 3; // untuk hasil tajam
     const width = 320;
     const height = 800;
     canvas.width = width * scale;
@@ -89,6 +89,7 @@ export default function PreviewPage() {
         img.onerror = reject;
       });
 
+    // Gambar foto
     for (let idx = 0; idx < template.position.length; idx++) {
       const pos = template.position[idx];
       const photoSrc = photos[idx];
@@ -98,12 +99,15 @@ export default function PreviewPage() {
         const img = await loadImage(photoSrc);
 
         const x = pos.left.endsWith("%")
-          ? (width * Number.parseInt(pos.left)) / 100 -
-            Number.parseInt(pos.width) / 2
-          : Number.parseInt(pos.left);
-        const y = Number.parseInt(pos.top);
-        const targetWidth = Number.parseInt(pos.width);
-        const targetHeight = Number.parseInt(pos.height);
+          ? (width * parseFloat(pos.left)) / 100 - parseFloat(pos.width) / 2
+          : parseFloat(pos.left);
+
+        const y = pos.top.endsWith("%")
+          ? (height * parseFloat(pos.top)) / 100
+          : parseFloat(pos.top);
+
+        const targetWidth = parseFloat(pos.width);
+        const targetHeight = parseFloat(pos.height);
 
         const imgRatio = img.width / img.height;
         const targetRatio = targetWidth / targetHeight;
@@ -112,6 +116,7 @@ export default function PreviewPage() {
           sy = 0,
           sw = img.width,
           sh = img.height;
+
         if (imgRatio > targetRatio) {
           sw = img.height * targetRatio;
           sx = (img.width - sw) / 2;
@@ -126,6 +131,7 @@ export default function PreviewPage() {
       }
     }
 
+    // Gambar overlay template
     try {
       const overlay = await loadImage(template.img);
       ctx.drawImage(overlay, 0, 0, width, height);

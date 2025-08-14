@@ -13,7 +13,7 @@ export function Template() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch("https://api.npoint.io/acfa037961d19a2c8985")
+    fetch("https://jsonkeeper.com/b/QVSKV")
       .then((res) => res.json())
       .then((data) => {
         setTemplate(data)
